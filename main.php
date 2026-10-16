@@ -40,7 +40,7 @@
                 <input type="password" id="password" placeholder="Enter your password">
             </div>
 
-            <button class="login-btn" onclick="window.location.href='/pages/ClientMain/ClientMain.php'">Login</button>
+            <button class="login-btn" type="button">Login</button>
 
             <div class="register-link">
                 Don't have an account? <a href="/pages/signup/signup.php">Register</a>

@@ -18,9 +18,6 @@ if (!isset($data['username'], $data['password'])) {
 
 $username = trim($data['username']);
 $password = $data['password'];
-$isAdmin = strpos($username, '#') !== false;
-$expectedRole = $isAdmin ? 'admin' : 'client';
-
 try {
     $pdo = connectDB();
     $stmt = $pdo->prepare('SELECT * FROM users WHERE username = :username');
@@ -31,14 +28,6 @@ if (!$user || !password_verify($password, $user['password'])) {
         echo json_encode([
             'success' => false,
             'message' => 'Invalid credentials'
-        ]);
-        exit;
-    }
-
-if ($user['role'] !== $expectedRole) {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Role mismatch'
         ]);
         exit;
     }
