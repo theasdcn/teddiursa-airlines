@@ -11,8 +11,19 @@ if (file_exists($envPath)) {
     }
 }
 
+// If DATABASE_URL is provided (Render / Neon / Supabase), parse it
+$dbUrl = getenv('DATABASE_URL') ?: ($_ENV['DATABASE_URL'] ?? '');
+if (!empty($dbUrl)) {
+    $parts = parse_url($dbUrl);
+    if (!empty($parts['host'])) $_ENV['PG_HOST'] = $parts['host'];
+    if (!empty($parts['port'])) $_ENV['PG_PORT'] = (string)$parts['port'];
+    if (!empty($parts['path'])) $_ENV['PG_DB'] = ltrim($parts['path'], '/');
+    if (!empty($parts['user'])) $_ENV['PG_USER'] = $parts['user'];
+    if (!empty($parts['pass'])) $_ENV['PG_PASS'] = $parts['pass'];
+}
+
 // Fallback lookup from getenv() into $_ENV if not populated
-$keys = ['PG_HOST', 'PG_PORT', 'PG_DB', 'PG_USER', 'PG_PASS', 'MONGO_URI', 'MONGO_DB'];
+$keys = ['PG_HOST', 'PG_PORT', 'PG_DB', 'PG_USER', 'PG_PASS', 'PG_SSLMODE', 'MONGO_URI', 'MONGO_DB'];
 foreach ($keys as $k) {
     if (!isset($_ENV[$k]) || $_ENV[$k] === '') {
         $val = getenv($k);
