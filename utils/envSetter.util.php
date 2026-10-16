@@ -1,36 +1,40 @@
 <?php
 require_once BASE_PATH . '/vendor/autoload.php';
 
-$dotenv = Dotenv\Dotenv::createImmutable(BASE_PATH);
-$dotenv->load();
-
-if (php_sapi_name() === 'cli') {
-    $_ENV['PG_HOST'] = 'localhost';
-}
-
 $envPath = BASE_PATH . '/.env';
-if (!file_exists($envPath)) {
-    die("❌ .env file not found at: $envPath");
-}
-
-
-$requiredKeys = ['PG_HOST', 'PG_PORT', 'PG_DB', 'PG_USER', 'PG_PASS', 'MONGO_URI', 'MONGO_DB'];
-foreach ($requiredKeys as $key) {
-    if (!isset($_ENV[$key])) {
-        die("❌ Missing ENV key: $key");
+if (file_exists($envPath)) {
+    try {
+        $dotenv = Dotenv\Dotenv::createImmutable(BASE_PATH);
+        $dotenv->safeLoad();
+    } catch (\Throwable $e) {
+        // Safe ignore if dotenv already loaded or parse error
     }
 }
 
+// Fallback lookup from getenv() into $_ENV if not populated
+$keys = ['PG_HOST', 'PG_PORT', 'PG_DB', 'PG_USER', 'PG_PASS', 'MONGO_URI', 'MONGO_DB'];
+foreach ($keys as $k) {
+    if (!isset($_ENV[$k]) || $_ENV[$k] === '') {
+        $val = getenv($k);
+        if ($val !== false && $val !== '') {
+            $_ENV[$k] = $val;
+        }
+    }
+}
+
+if (php_sapi_name() === 'cli' && empty($_ENV['PG_HOST'])) {
+    $_ENV['PG_HOST'] = 'localhost';
+}
+
 $typeConfig = [
+    'pg_host'    => $_ENV['PG_HOST'] ?? 'localhost',
+    'pg_port'    => $_ENV['PG_PORT'] ?? '5432',
+    'pg_db'      => $_ENV['PG_DB'] ?? 'finaldatabase',
+    'pg_user'    => $_ENV['PG_USER'] ?? 'user',
+    'pg_pass'    => $_ENV['PG_PASS'] ?? 'password',
 
-    'pg_host'    => $_ENV['PG_HOST'],
-    'pg_port'    => $_ENV['PG_PORT'],
-    'pg_db'      => $_ENV['PG_DB'],
-    'pg_user'    => $_ENV['PG_USER'],
-    'pg_pass'    => $_ENV['PG_PASS'],
-
-    'mongo_uri'  => $_ENV['MONGO_URI'],
-    'mongo_db'   => $_ENV['MONGO_DB'],
+    'mongo_uri'  => $_ENV['MONGO_URI'] ?? 'mongodb://localhost:27017',
+    'mongo_db'   => $_ENV['MONGO_DB'] ?? 'finaldatabase',
 ];
 
 $pgConfig = [
@@ -39,4 +43,4 @@ $pgConfig = [
     'db'   => $typeConfig['pg_db'],
     'user' => $typeConfig['pg_user'],
     'pass' => $typeConfig['pg_pass'],
-];
+];

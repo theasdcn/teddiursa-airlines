@@ -12,6 +12,10 @@ require_once UTILS_PATH . '/envSetter.util.php';
 
 // ——— Connect to PostgreSQL ———
 $dsn = "pgsql:host={$pgConfig['host']};port={$pgConfig['port']};dbname={$pgConfig['db']}";
+$sslmode = getenv('PG_SSLMODE') ?: ($_ENV['PG_SSLMODE'] ?? '');
+if (!empty($sslmode)) {
+  $dsn .= ";sslmode=$sslmode";
+}
 $pdo = new PDO($dsn, $pgConfig['user'], $pgConfig['pass'], [
   PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 ]);

@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: teddiursa-airlines
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: PG_HOST
+        sync: false
+      - key: PG_PORT
+        sync: false
+        value: "5432"
+      - key: PG_DB
+        sync: false
+      - key: PG_USER
+        sync: false
+      - key: PG_PASS
+        sync: false
+      - key: PG_SSLMODE
+        sync: false
+        value: "require"
+      - key: MONGO_URI
+        sync: false
+      - key: MONGO_DB
+        sync: false
+        value: "finaldatabase"

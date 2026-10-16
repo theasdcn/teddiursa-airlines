@@ -20,6 +20,6 @@ RUN composer install
 
 USER yourUsernameHere
 
-EXPOSE 8000
+EXPOSE 8000 10000
 
-CMD ["php", "-S", "0.0.0.0:8000", "router.php"]
+CMD ["sh", "-c", "php -S 0.0.0.0:${PORT:-8000} router.php"]

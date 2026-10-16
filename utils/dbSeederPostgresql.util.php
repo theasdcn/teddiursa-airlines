@@ -14,6 +14,10 @@ $booking = require_once DUMMIES_PATH . '/booking.staticData.php';
 $tickets = require_once DUMMIES_PATH . '/tickets.staticData.php';
 
 $dsn = "pgsql:host={$pgConfig['host']};port={$pgConfig['port']};dbname={$pgConfig['db']}";
+$sslmode = getenv('PG_SSLMODE') ?: ($_ENV['PG_SSLMODE'] ?? '');
+if (!empty($sslmode)) {
+  $dsn .= ";sslmode=$sslmode";
+}
 $pdo = new PDO($dsn, $pgConfig['user'], $pgConfig['pass'], [
   PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 ]);
